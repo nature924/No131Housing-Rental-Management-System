@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.FangyuanDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.fangyuan_name as fangyuanName
+        ,a.fangyuan_uuid_number as fangyuanUuidNumber
+        ,a.fangyuan_photo as fangyuanPhoto
+        ,a.fangyuan_types as fangyuanTypes
+        ,a.fangyuan_kucun_number as fangyuanKucunNumber
+        ,a.fangyuan_new_money as fangyuanNewMoney
+        ,a.fangyuan_content as fangyuanContent
+        ,a.fangyuan_delete as fangyuanDelete
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.FangyuanView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+
+        FROM fangyuan  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.fangyuanName != '' and params.fangyuanName != null and params.fangyuanName != 'null' ">
+                and a.fangyuan_name like CONCAT('%',#{params.fangyuanName},'%')
+            </if>
+            <if test=" params.fangyuanUuidNumber != '' and params.fangyuanUuidNumber != null and params.fangyuanUuidNumber != 'null' ">
+                and a.fangyuan_uuid_number like CONCAT('%',#{params.fangyuanUuidNumber},'%')
+            </if>
+            <if test="params.fangyuanTypes != null and params.fangyuanTypes != ''">
+                and a.fangyuan_types = #{params.fangyuanTypes}
+            </if>
+            <if test="params.fangyuanKucunNumberStart != null and params.fangyuanKucunNumberStart != ''">
+                <![CDATA[  and a.fangyuan_kucun_number >= #{params.fangyuanKucunNumberStart}   ]]>
+            </if>
+            <if test="params.fangyuanKucunNumberEnd != null and params.fangyuanKucunNumberEnd != ''">
+                <![CDATA[  and a.fangyuan_kucun_number <= #{params.fangyuanKucunNumberEnd}   ]]>
+            </if>
+             <if test="params.fangyuanKucunNumber != null and params.fangyuanKucunNumber != ''">
+                and a.fangyuan_kucun_number = #{params.fangyuanKucunNumber}
+             </if>
+            <if test="params.fangyuanNewMoneyStart != null ">
+                <![CDATA[  and a.fangyuan_new_money >= #{params.fangyuanNewMoneyStart}   ]]>
+            </if>
+            <if test="params.fangyuanNewMoneyEnd != null ">
+                <![CDATA[  and a.fangyuan_new_money <= #{params.fangyuanNewMoneyEnd}   ]]>
+            </if>
+            <if test=" params.fangyuanContent != '' and params.fangyuanContent != null and params.fangyuanContent != 'null' ">
+                and a.fangyuan_content like CONCAT('%',#{params.fangyuanContent},'%')
+            </if>
+            <if test="params.fangyuanDeleteStart != null and params.fangyuanDeleteStart != ''">
+                <![CDATA[  and a.fangyuan_delete >= #{params.fangyuanDeleteStart}   ]]>
+            </if>
+            <if test="params.fangyuanDeleteEnd != null and params.fangyuanDeleteEnd != ''">
+                <![CDATA[  and a.fangyuan_delete <= #{params.fangyuanDeleteEnd}   ]]>
+            </if>
+             <if test="params.fangyuanDelete != null and params.fangyuanDelete != ''">
+                and a.fangyuan_delete = #{params.fangyuanDelete}
+             </if>
+
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

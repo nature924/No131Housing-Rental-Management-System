@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ZufanghetongDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.fangyuan_order_id as fangyuanOrderId
+        ,a.zufanghetong_name as zufanghetongName
+        ,a.zufanghetong_file as zufanghetongFile
+        ,a.shoufanghetong_text as shoufanghetongText
+        ,a.zufanghetong_delete as zufanghetongDelete
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.ZufanghetongView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,fangyuanOrder.fangyuan_order_uuid_number as fangyuanOrderUuidNumber
+        ,fangyuanOrder.yonghu_id as fangyuanOrderYonghuId
+        ,fangyuanOrder.buy_number as buyNumber
+        ,fangyuanOrder.fangyuan_order_time as fangyuanOrderTime
+        ,fangyuanOrder.fangyuan_order_true_price as fangyuanOrderTruePrice
+        ,fangyuanOrder.fangyuan_order_types as fangyuanOrderTypes
+
+        FROM zufanghetong  a
+        left JOIN fangyuan_order fangyuanOrder ON a.fangyuan_order_id = fangyuanOrder.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.fangyuanOrderId != null and params.fangyuanOrderId != ''">
+                and (
+                    a.fangyuan_order_id = #{params.fangyuanOrderId}
+                )
+            </if>
+            <if test=" params.zufanghetongName != '' and params.zufanghetongName != null and params.zufanghetongName != 'null' ">
+                and a.zufanghetong_name like CONCAT('%',#{params.zufanghetongName},'%')
+            </if>
+            <if test=" params.shoufanghetongText != '' and params.shoufanghetongText != null and params.shoufanghetongText != 'null' ">
+                and a.shoufanghetong_text like CONCAT('%',#{params.shoufanghetongText},'%')
+            </if>
+            <if test="params.zufanghetongDeleteStart != null and params.zufanghetongDeleteStart != ''">
+                <![CDATA[  and a.zufanghetong_delete >= #{params.zufanghetongDeleteStart}   ]]>
+            </if>
+            <if test="params.zufanghetongDeleteEnd != null and params.zufanghetongDeleteEnd != ''">
+                <![CDATA[  and a.zufanghetong_delete <= #{params.zufanghetongDeleteEnd}   ]]>
+            </if>
+             <if test="params.zufanghetongDelete != null and params.zufanghetongDelete != ''">
+                and a.zufanghetong_delete = #{params.zufanghetongDelete}
+             </if>
+
+                <!-- 判断房源租赁的id不为空 -->
+            <if test=" params.fangyuanOrderIdNotNull != '' and params.fangyuanOrderIdNotNull != null and params.fangyuanOrderIdNotNull != 'null' ">
+                and a.fangyuan_order_id IS NOT NULL
+            </if>
+            <if test=" params.fangyuanOrderUuidNumber != '' and params.fangyuanOrderUuidNumber != null and params.fangyuanOrderUuidNumber != 'null' ">
+                and fangyuanOrder.fangyuan_order_uuid_number like CONCAT('%',#{params.fangyuanOrderUuidNumber},'%')
+            </if>
+            <if test="params.fangyuanId != null  and params.fangyuanId != ''">
+                and fangyuanOrder.fangyuan_id = #{params.fangyuanId}
+            </if>
+            <if test="params.yonghuId != null  and params.yonghuId != ''">
+                and fangyuanOrder.yonghu_id = #{params.yonghuId}
+            </if>
+            <if test="params.buyNumberStart != null  and params.buyNumberStart != '' ">
+                <![CDATA[  and fangyuanOrder.buy_number >= #{params.buyNumberStart}   ]]>
+            </if>
+            <if test="params.buyNumberEnd != null  and params.buyNumberEnd != '' ">
+                <![CDATA[  and fangyuanOrder.buy_number <= #{params.buyNumberEnd}   ]]>
+            </if>
+            <if test="params.buyNumber != null  and params.buyNumber != '' ">
+                and fangyuanOrder.buy_number = #{params.buyNumber}
+            </if>
+            <if test=" params.fangyuanOrderTimeStart != '' and params.fangyuanOrderTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(fangyuanOrder.fangyuan_order_time) >= UNIX_TIMESTAMP(#{params.fangyuanOrderTimeStart}) ]]>
+            </if>
+            <if test=" params.fangyuanOrderTimeEnd != '' and params.fangyuanOrderTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(fangyuanOrder.fangyuan_order_time) <= UNIX_TIMESTAMP(#{params.fangyuanOrderTimeEnd}) ]]>
+            </if>
+            <if test="params.fangyuanOrderTruePriceStart != null ">
+                <![CDATA[  and fangyuanOrder.fangyuan_order_true_price >= #{params.fangyuanOrderTruePriceStart}   ]]>
+            </if>
+            <if test="params.fangyuanOrderTruePriceEnd != null ">
+                <![CDATA[  and fangyuanOrder.fangyuan_order_true_price <= #{params.fangyuanOrderTruePriceEnd}   ]]>
+            </if>
+            <if test="params.fangyuanOrderTypes != null  and params.fangyuanOrderTypes != ''">
+                and fangyuanOrder.fangyuan_order_types = #{params.fangyuanOrderTypes}
+            </if>
+
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(fangyuanOrder.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(fangyuanOrder.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>
